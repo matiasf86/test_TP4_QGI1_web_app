@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scatter Plot with Linear Regression</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <div id="chart"></div>
+    <button id="loadData">Cargar Datos</button>
+
+    <script>
+        // Generar datos de ejemplo
+        function generateData() {
+            const x = d3.range(400).map(d => d * 10);
+            const y = x.map(d => 0.8 * Math.exp(-d / 1000) + Math.random() * 0.05);
+            return x.map((d, i) => ({ x: d, y: y[i] }));
+        }
+
+        // Configurar el gráfico
+        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+        const width = 800 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Escalas
+        const xScale = d3.scaleLinear().domain([0, 4000]).range([0, width]);
+        const yScale = d3.scaleLinear().domain([0, 1]).range([height, 0]);
+
+        // Ejes
+        svg.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(xScale));
+        svg.append("g").call(d3.axisLeft(yScale));
+
+        // Función para dibujar puntos
+        function drawScatter(data) {
+            svg.selectAll(".dot").remove();
+            svg.selectAll(".dot")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => xScale(d.x))
+                .attr("cy", d => yScale(d.y))
+                .attr("r", 3)
+                .style("fill", "blue");
+        }
+
+        // Cargar los datos iniciales
+        const data = generateData();
+        drawScatter(data);
+
+        // Evento para cargar nuevos datos
+        document.getElementById("loadData").addEventListener("click", () => {
+            const newData = generateData();
+            drawScatter(newData);
+        });
+    </script>
+</body>
+</html>
+
